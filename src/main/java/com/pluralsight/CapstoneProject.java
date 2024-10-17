@@ -1,4 +1,5 @@
 package com.pluralsight;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -13,12 +14,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class CapstoneProject {
-    static ArrayList<transaction> allTransactions = new ArrayList<transaction>();
+    static ArrayList<transaction> transactions = new ArrayList<>();
     static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        String filename = "src/employees.csv";
+//        deposit.makeDeposit();
+//        String filename = "src/employees.csv";
         String option;
         //homescreen
         do {
@@ -34,7 +36,7 @@ public class CapstoneProject {
             //switch statement:
             switch (option) {
                 case "D":
-                    deposit;
+                    deposit.makeDeposit();
                     break;
                 case "P":
                     makePayment();
@@ -49,56 +51,143 @@ public class CapstoneProject {
             }
 
         } while (!option.equals("X")); //keeps looping until x pressed
+    }
 
-        public static void addDeposit () {
-            double amount;
+    public static void displayLedger() {
+
+        System.out.println("Displaying all transactions:");
+        for (transaction t : transactions) {
+            System.out.println(t);
         }
-
-        public static <transaction > void deposit () {
-            String date, time, description, vendor;
-            float amount;
-
-            //1. asking for how much it costs
-            System.out.println("How much did you sell this item for?");
-            amount = scanner.nextFloat();
-            //2. asking for a description
-            System.out.println("What is this item?");
-            description = scanner.nextLine();
-            //3.asking for buyer's name
-            System.out.println("Name of buyer?");
-            vendor = scanner.nextLine();
-            // Writing to the CSV file (transactions.csv)
-// add transactiondetails to an array of transactions
-
-            //saving it to file!!
-            allTransactions.add("", "", "")
-            saveTransactionToFile(date, time, description, vendor, amount);
-            System.out.println("okey dokey artichoke :3 it was saved");
-        }
-
-
-        public List<transaction> loadTransactions ();
-        public List<transaction> loadTransactions () {
-            List<transaction> transactions = new ArrayList<>();
-            String filename = "src/employees.csv";
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    }
+        public static void loadTransactions() {
+            String filename = "transactions.csv";
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
 
             try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split("\\|");
+                    if (parts.length == 5) {
+                        LocalDate date = LocalDate.parse(parts[0], dateTimeFormatter);
+                        LocalTime time = LocalTime.parse(parts[1], dateTimeFormatter);
+                        String description = parts[2];
+                        String vendor = parts[3];
+                        float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
 
-                    // Check if the first part contains both date and time
-                    if (parts.length != 4) {
+                        transaction t = new transaction(date, time, description, vendor, amount);
+                        transactions.add(t);
+                    } else {
                         System.out.println("Invalid line format: " + line);
-                        continue; // Skip invalid lines
-                        // Thank you Osmig
                     }
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurred while reading the file O.o;;");
+                e.printStackTrace(); //////////////////////////////////////////////
+            }
+        }
+
+
+        String filename = "src/transaction.csv";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+
+                // Check if the first part contains both date and time
+                if (parts.length != 4) {
+                    System.out.println("Invalid line format: " + line);
+                    continue; // Skip invalid lines
                 }
             }
         }
+
+        //Get only payments (negative amounts)
+        public ArrayList<transaction> getPayments() {
+            List<transaction> payments = new ArrayList<>();
+            for (transaction t : transactions) {
+                if (transaction.getAmount() < 0) {
+                    payments.add(t);
+                }
+            }// Get only deposits (positive amounts)
+            public ArrayList<transaction> getDeposits() {
+                ArrayList<transaction> deposits = new ArrayList<>();
+                for (transaction t : transactions()) {
+                    if (transaction.getAmount() > 0) {
+                        deposits.add(t);
+                    }
+                }
+                return deposits;
+            }
+            return payments;
+        }
+
+        public static void deposit() {
+        String description, vendor;
+        float amount;
+
+        //1. asking for how much it costs
+        System.out.println("How much did you sell this item for?");
+        amount = scanner.nextFloat();
+        scanner.nextLine();
+        //2. asking for a description
+        System.out.println("What is this item?");
+        description = scanner.nextLine();
+        //3.asking for buyer's name
+        System.out.println("Name of buyer?");
+        vendor = scanner.nextLine();
+        // Writing to the CSV file (transactions.csv)
+// add transactiondetails to an array of transactions
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+
+        // Add the transaction to the list (you need to have a proper transaction class defined)
+        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+        transactions.add(t);
+        //saving it to file!!
+        try(FileWriter writer = new FileWriter("transaction.csv", true)) {
+            writer.write(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+            System.out.println("Okey Dokey deposit saved! yyayyyyyy");
+        }catch (IOException e) {
+            System.out.println("an error occurred :c");
+            e.printStackTrace();
+        }
+
+    }
+    public static void makePayment() {
+        String description, vendor;
+        float amount;
+
+        //1. asking for how much it costs
+        System.out.println("How much did you sell this item for?");
+        amount = scanner.nextFloat();
+        scanner.nextLine();
+        //2. asking for a description
+        System.out.println("What is this item?");
+        description = scanner.nextLine();
+        //3.asking for buyer's name
+        System.out.println("Name of seller?");
+        vendor = scanner.nextLine();
+        // Writing to the CSV file (transactions.csv)
+// add transactiondetails to an array of transactions
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+
+        // Add the transaction to the list (you need to have a proper transaction class defined)
+        transaction t = new transaction(date, time, description, vendor, float amount);
+        transactions.add(t);
+        //saving it to file!!
+        transactions.add(new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount));
+
+        System.out.println("okey dokey artichoke :3 payment has been saved");
+    }
+    public static void showReports
+
     }
 }
+
 
 
         //payments
@@ -423,5 +512,3 @@ public class CapstoneProject {
                     Consider: How will you ensure the application handles unexpected scenarios?
 
 */
-        }
-}

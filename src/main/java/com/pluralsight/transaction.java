@@ -5,50 +5,45 @@ import java.util.ArrayList;
 
 //Here, I will parse the transaction file.
 public class transaction {
-    private LocalTime date;
-    private LocalDate time;
+    private LocalDate date;
+    private LocalTime time;
     private String description;
     private String vendor;
-    private float price;
+    private float amount;
     //alt + insert (click constructor, select all
-    // Get only payments (negative amounts)
-//    public List<Transaction> getPayments() {
-//        List<Transaction> payments = new ArrayList<>();
-//        for (Transaction transaction : loadTransactions()) {
-//            if (transaction.getAmount() < 0) {
-//                payments.add(transaction);
-//            }
-//        }// Get only deposits (positive amounts)
-//        public List<Transaction> getDeposits() {
-//            List<Transaction> deposits = new ArrayList<>();
-//            for (Transaction transaction : loadTransactions()) {
-//                if (transaction.getAmount() > 0) {
-//                    deposits.add(transaction);
-//                }
-//            }
-//            return deposits;
-//        }
-//        return payments;
-//    }
-    public transaction(String date, String time, String description, String vendor, String type) {
+
+    public transaction(LocalDate date, LocalTime time, String description, String vendor, float amount) {
         this.date = date;
         this.time = time;
         this.description = description;
         this.vendor = vendor;
-        this.price = price;
+        this.amount = amount;
     }
 //empty
     public transaction() {
 
     }
-    //getting and setting variables
-    public String getDate() {
+
+    public LocalDate getDate() {
         return date;
     }
-    public void setDate(String date) {
+
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
+    }
+
+    public transaction(String s) {
+    }
+
+    //getting and setting variables
     public String getDescription() {
         return description;
     }
@@ -57,13 +52,6 @@ public class transaction {
         this.description = description;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
 
     public String getVendor() {
         return vendor;
@@ -73,15 +61,16 @@ public class transaction {
         this.vendor = vendor;
     }
 
-    public float getPrice() {
-        return price;
+    public float getAmount() {
+        return amount;
     }
 
-    public void setPrice(float price) {
-        this.price = price;
+    public void setAmount(float amount) {
+        this.amount = amount;
     }
     @Override
     public String toString() {
-        return String.format("")
+        return date + " | " + time + " | " + description + " | " + vendor + " | " + amount;
+    }
     }
 }
