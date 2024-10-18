@@ -1,23 +1,18 @@
 package com.pluralsight;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
 
 public class CapstoneProject {
     static ArrayList<transaction> transactions = new ArrayList<>();
     static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
 //        deposit.makeDeposit();
 //        String filename = "src/employees.csv";
@@ -52,6 +47,7 @@ public class CapstoneProject {
 
         } while (!option.equals("X")); //keeps looping until x pressed
     }
+
     public static void deposit() {
         String description, vendor;
         float amount;
@@ -69,23 +65,24 @@ public class CapstoneProject {
         // Writing to the CSV file (transactions.csv)
 // add transactiondetails to an array of transactions
         LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+        LocalTime time = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
 
         // Add the transaction to the list (you need to have a proper transaction class defined)
         //        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
         transaction t = new transaction(date, time, description, vendor, amount);
         transactions.add(t);
         //saving it to file!!
-        try(FileWriter writer = new FileWriter("src/transactions.csv", true)) {
+        try (FileWriter writer = new FileWriter("src/transactions.csv", true)) {
             String name = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
             writer.write(name + "\n");
             System.out.println("Okey Dokey deposit saved! yyayyyyyy");
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("an error occurred :c");
             e.printStackTrace();
         }
 
     }
+
     public static void makePayment() {
         String description, vendor;
         float amount;
@@ -103,7 +100,7 @@ public class CapstoneProject {
         // Writing to the CSV file (transactions.csv)
 // add transactiondetails to an array of transactions
         LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+        LocalTime time = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
 
         // Add the transaction to the list (you need to have a proper transaction class defined)
         //        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
@@ -114,7 +111,7 @@ public class CapstoneProject {
             String name = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
             writer.write(name + "\n");
             System.out.println("okey dokey artichoke :3 payment has been saved");
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("a problem happened while writing to the file :c");
             e.printStackTrace();
         }
@@ -141,11 +138,13 @@ public class CapstoneProject {
                     break;
                 case "D":
                     showDeposits();
+                    break;
                 case "P":
                     showPayments();
                     break;
                 case "R":
                     showReports();
+                    break;
                 case "H":
                     System.out.println("Bye bye :)!");
                     break;
@@ -155,59 +154,133 @@ public class CapstoneProject {
 
         } while (!option.equals("H"));
     }
-    public static void showDeposits() {
-        System.out.println("Displaying all transactions:");
-        for (transaction t : transactions) {
-            System.out.println(t);
-        }
-    }
-    public static void showPayments() {
-        System.out.println("Displaying all transactions:");
-        for (transaction t : transactions) {
-            System.out.println(t);
-        }
-    }
 
 
-        public static void loadTransactions() {
-            String filename = "src/transactions.csv";
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static void loadTransactions() {
+        String filename = "src/transactions.csv";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-                String line = reader.readLine();
-                int transactionNumber = 0;
-                if (line != null && line.toLowerCase().startsWith("date|")) {
-                    line = reader.readLine();
-                }
-                while (line != null) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length == 5) {
-                        LocalDate date = LocalDate.parse(parts[0], dateFormatter);
-                        LocalTime time = LocalTime.parse(parts[1], timeFormatter);
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line = reader.readLine();
+            int transactionNumber = 0;
+            if (line != null && line.toLowerCase().startsWith("date|")) {
+                line = reader.readLine();
+            }
+            while (line != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 5) {
+                    String date = parts[0];
+                    String time = parts[1];
 //                        LocalDate date = parts[0];
 //                        LocalTime time = parts[1];
-                        String description = parts[2];
-                        String vendor = parts[3];
-                        float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
-                        transactionNumber++;
-                        System.out.println("Transaction" + transactionNumber + ":\n" +
-                                "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ\n" +
-                                "Date: " + date + "\n" +
-                                "Time: " + time + "\n" +
-                                "Description: " + description + "\n" +
-                                "2nd party: " + vendor + "\n" +
-                                "Price: " + amount + "\n" +
-                                "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ");
-                    } else {
-                        System.out.println("Invalid line format: " + line);
-                    }
+                    String description = parts[2];
+                    String vendor = parts[3];
+                    //float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
+                    String amount = parts[4];
+                    transactionNumber++;
+                    System.out.println("Transaction" + transactionNumber + ":\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ\n" +
+                            "Date: " + date + "\n" +
+                            "Time: " + time + "\n" +
+                            "Description: " + description + "\n" +
+                            "2nd party: " + vendor + "\n" +
+                            "Price: " + amount + "\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ");
+                } else {
+                    System.out.println("Invalid line format: " + line);
                 }
-            } catch (IOException e) {
-                System.out.println("An error occurred while reading the file O.o;;");
-                e.printStackTrace(); //////////////////////////////////////////////
+                line = reader.readLine();
             }
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file O.o;;");
+            e.printStackTrace(); //////////////////////////////////////////////
         }
+    }
+
+    public static void showDeposits() {
+        String filename = "src/transactions.csv";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line = reader.readLine();
+            int transactionNumber = 0;
+            if (line != null && line.toLowerCase().startsWith("date|")) {
+                line = reader.readLine();
+            }
+            while (line != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 5 && !parts[4].startsWith("-")) {
+                    String date = parts[0];
+                    String time = parts[1];
+//                        LocalDate date = parts[0];
+//                        LocalTime time = parts[1];
+                    String description = parts[2];
+                    String vendor = parts[3];
+                    //float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
+                    String amount = parts[4];
+                    transactionNumber++;
+                    System.out.println("Transaction" + transactionNumber + ":\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ\n" +
+                            "Date: " + date + "\n" +
+                            "Time: " + time + "\n" +
+                            "Description: " + description + "\n" +
+                            "2nd party: " + vendor + "\n" +
+                            "Price: " + amount + "\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ");
+                } else {
+                    System.out.println("Invalid line format: " + line);
+                }
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file O.o;;");
+            e.printStackTrace(); //////////////////////////////////////////////
+        }
+    }
+
+    public static void showPayments() {
+        String filename = "src/transactions.csv";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line = reader.readLine();
+            int transactionNumber = 0;
+            if (line != null && line.toLowerCase().startsWith("date|")) {
+                line = reader.readLine();
+            }
+            while (line != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 5 && parts[4].startsWith("-")) {
+                    String date = parts[0];
+                    String time = parts[1];
+//                        LocalDate date = parts[0];
+//                        LocalTime time = parts[1];
+                    String description = parts[2];
+                    String vendor = parts[3];
+                    //float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
+                    String amount = parts[4];
+                    transactionNumber++;
+                    System.out.println("Transaction" + transactionNumber + ":\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ\n" +
+                            "Date: " + date + "\n" +
+                            "Time: " + time + "\n" +
+                            "Description: " + description + "\n" +
+                            "2nd party: " + vendor + "\n" +
+                            "Price: " + amount + "\n" +
+                            "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ");
+                } else {
+                    System.out.println("Invalid line format: " + line);
+                }
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred while reading the file O.o;;");
+            e.printStackTrace(); //////////////////////////////////////////////
+        }
+    }
 
     public static void loadAll() {
 
@@ -230,27 +303,24 @@ public class CapstoneProject {
             throw new RuntimeException(e);
         }
     }
-        //Get only payments (negative amounts)
-        public ArrayList<transaction> getPayments() {
-            List<transaction> payments = new ArrayList<>();
-            for (transaction t : transactions) {
-                if (t.getAmount() < 0) {
-                    payments.add(t);
-                }
-                return payments;
-            }// Get only deposits (positive amounts)
-            public ArrayList<transaction> getDeposits() {
-                ArrayList<transaction> deposits = new ArrayList<>();
-                for (transaction t : transactions()) {
-                    if (t.getAmount() > 0) {
-                        deposits.add(t);
-                    }
-                }
-                return deposits;
-            }
 
-        }
-
+//    //Get only payments (negative amounts)
+//    public ArrayList<transaction> getPayments() {
+//        List<transaction> payments = new ArrayList<>();
+//        for (transaction t : transactions) {
+//            if (t.getAmount() < 0) {
+//                payments.add(t);
+//            }
+//            return payments;
+//        }// Get only deposits (positive amounts)
+//        public ArrayList<transaction> getDeposits() {
+//            ArrayList<transaction> deposits = new ArrayList<>();
+//            for (transaction t : transactions) {
+//                if (t.getAmount() > 0) {
+//                    deposits.add(t);
+//                }
+//            }
+//            return deposits;
 
 
     public static void showReports() {
@@ -263,30 +333,213 @@ public class CapstoneProject {
                     "1) Month To Date\n" +//ask for deposit information, how much they want to deposit, invoice/description, name, and save to csv file
                     "2) Previous Month\n" +//prompt for debit info and save to csv file
                     "3) Year to Date\n" +
-                    "4) Previous Year" +
-                    "5) Search By Vendor" +
-                    "0) Exit");
+                    "4) Previous Year\n" +
+                    "5) Search By Vendor\n" +
+                    "0) Back to ledger");
             //make uppercase:
             option = scanner.nextLine().toUpperCase();
             //switch statement:
             switch (option) {
-                case "D":
-                    deposit();
+                case "1":
+                    monthToDate();
                     break;
-                case "P":
-                    makePayment();
+                case "2":
+                    previousMonth();
                     break;
-                case "L":
-                    displayLedger();
-                case "X":
+                case "3":
+                    yearToDate();
+                    break;
+                case "4":
+                    previousYear();
+                    break;
+                case "5":
+                    searchByVendor();
+                    break;
+                case "0":
                     System.out.println("Bye bye :)!");
                     break;
                 default:
                     System.out.println("This option is not available. Please choose again.");
             }
 
-        } while (!option.equals("X")); //keeps looping until x pressed
+        } while (!option.equals("0")); //keeps looping until x pressed
 
+    }
+
+    public static void previousMonth() {
+        String transaction;
+        String filename = "src/transactions.csv";
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.now().minusMonths(1);
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            transaction = reader.readLine();
+
+            while (transaction != null) {
+                String[] parts = transaction.split("\\|");
+                if (parts.length == 5) {
+                    LocalDate transactionDate = LocalDate.parse(parts[0], formatter); ////////////////////////////////////////////////
+                    if (!transactionDate.isAfter(currentDate)) { // includes from today or previous
+                        String splitDate = parts[0];
+                        LocalDate date = LocalDate.parse(splitDate, formatter);
+                        // only entries where the month equals the previous month and year
+                        if ((date.getMonth() == newDate.getMonth() && date.getYear() == newDate.getYear())) {
+                            System.out.println(transaction);
+                            }
+                        }
+                    }
+                }transaction = reader.readLine();
+
+        } catch (IOException e) {
+            System.out.println("error");
+            e.printStackTrace();
+        }
+    }
+    public static void monthToDate() {
+        String transaction;
+        String filename = "src/transactions.csv";
+        LocalDate currentDate = LocalDate.now(); //YYYY-mm-dd
+
+        int currentMonth = currentDate.getMonthValue();  // Current month (1-12)
+        int currentYear = currentDate.getYear();  // Current year (e.g., 2024)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            transaction = reader.readLine();
+            while (transaction != null) {
+                    String[] parts = transaction.split("\\|");
+//
+                    if (parts.length == 5 ) {
+                        LocalDate transactionDate = LocalDate.parse(parts[0], formatter); ////////////////////////////////////////////////
+                        if (!transactionDate.isAfter(currentDate)) { // includes from today or previous
+//                            String splitDate = parts[0];
+//                            LocalDate date = LocalDate.parse(splitDate, formatter);
+                            if (transactionDate.getMonthValue() == currentMonth && transactionDate.getYear() == currentYear) {
+                                System.out.println(transaction);
+                            }
+
+                        }
+                    }
+                }
+                transaction = reader.readLine();
+
+        } catch (IOException e) {
+            System.out.println("error");
+            e.printStackTrace();
+        }
+    }
+    public static void yearToDate() {
+        String transaction;
+        String filename = "src/transactions.csv";
+        LocalDate date = LocalDate.now();
+//        String date = date.format(dateFormatter);
+//        LocalDate date  = LocalDate.parse(splitDate, dateFormatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        Map<String, StringBuilder> monthToDateTransactions = new HashMap<>();
+
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            transaction = reader.readLine();
+
+            // Read the first line and check for BOM
+            if (transaction != null) {
+                // Remove BOM if present
+                if (transaction.startsWith("\uFEFF")) {
+                    transaction = transaction.substring(1);  // Remove BOM character
+                }
+                while (transaction != null) {
+                    String[] parts = transaction.split("\\|");
+//                String[] monthParts = parts.split(parts[0], "-");
+                    if (parts.length == 5) {
+                        LocalDate transactionDate = LocalDate.parse(parts[0], formatter); ////////////////////////////////////////////////
+                        if (!transactionDate.isAfter(date)) { // includes from today or previous
+                            String getMonthAndYear = transactionDate.getMonth() + " " + transactionDate.getYear();
+                            monthToDateTransactions.putIfAbsent(getMonthAndYear, new StringBuilder());
+                            monthToDateTransactions.get(getMonthAndYear).append(transaction).append("\n");
+                        }
+                    }
+                }
+                for (Map.Entry<String, StringBuilder> entry : monthToDateTransactions.entrySet()) {
+                    System.out.println("Month: " + entry.getKey()); //makes it so that it displays the month at the end
+                    System.out.println(entry.getValue().toString());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("error");
+            e.printStackTrace();
+        }
+    }
+    public static void previousYear() {
+        String transaction;
+        String filename = "src/transactions.csv";
+        LocalDate date = LocalDate.now();
+//        String date = date.format(dateFormatter);
+//        LocalDate date  = LocalDate.parse(splitDate, dateFormatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        Map<String, StringBuilder> monthToDateTransactions = new HashMap<>();
+
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            transaction = reader.readLine();
+
+            // Read the first line and check for BOM
+            if (transaction != null) {
+                // Remove BOM if present
+                if (transaction.startsWith("\uFEFF")) {
+                    transaction = transaction.substring(1);  // Remove BOM character
+                }
+                while (transaction != null) {
+                    String[] parts = transaction.split("\\|");
+//                String[] monthParts = parts.split(parts[0], "-");
+                    if (parts.length == 5) {
+                        LocalDate transactionDate = LocalDate.parse(parts[0], formatter); ////////////////////////////////////////////////
+                        if (!transactionDate.isAfter(date)) { // includes from today or previous
+                            String getMonthAndYear = transactionDate.getMonth() + " " + transactionDate.getYear();
+                            monthToDateTransactions.putIfAbsent(getMonthAndYear, new StringBuilder());
+                            monthToDateTransactions.get(getMonthAndYear).append(transaction).append("\n");
+                        }
+                    }
+                }
+                for (Map.Entry<String, StringBuilder> entry : monthToDateTransactions.entrySet()) {
+                    System.out.println("Month: " + entry.getKey()); //makes it so that it displays the month at the end
+                    System.out.println(entry.getValue().toString());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("error");
+            e.printStackTrace();
+        }
+    }
+    public static void searchByVendor() {
+        String transaction;
+        String vendor;
+        String filename = "src/transactions.csv";
+
+
+        Map<String, StringBuilder> searchByVendor = new HashMap<>();
+        System.out.println("What is the name of the vendor?");
+        vendor = scanner.nextLine();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            transaction = reader.readLine();
+
+            while (transaction != null) {
+                String[] parts = transaction.split("\\|");
+                if (parts.length == 5) {
+                    String vendorPart = parts[3];
+                    if (vendor.equalsIgnoreCase(vendorPart)) {
+                        System.out.println(transaction);
+                    }
+                }
+                transaction = reader.readLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("error");
+            e.printStackTrace();
+        }
     }
 }
 
@@ -295,22 +548,9 @@ public class CapstoneProject {
 
 
 
-        //payments
-       /*import java.time.LocalDateTime; import java.time.format.DateTimeFormatter; public class Program { public static void main(String[] args) { LocalDateTime today = LocalDateTime.now(); System.out.println("Today is: " + today); // Specify the date/time format you will want to use DateTimeFormatter fmt = DateTimeFormatter.ofPattern("E, MMM dd, yyyy HH:mm:ss"); String formattedDate = today.format(fmt); System.out.println("Today is: " + formattedDate); } }
-        }
-        }
-        ArrayList<Product> products = new ArrayList<Product>();
 
-        Product p1 = new Product(1,"Iphone 15", 999);
-        products.add(p1);
 
-        Task: Create a new Java project and a class for managing transactions.
-
-        Hint: Create a class named TransactionApp with a main method.
-
-        Consider: Think about what kind of data you'll be storing for each transaction (e.g., date, amount, vendor).
-        String filename = "src/employees.csv";
-
+       /*
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             reader.readLine();
@@ -330,21 +570,6 @@ public class CapstoneProject {
         }catch (IOException e) {
             System.err.println("An error occurred while reading the file: " + e.getMessage());
         }
-
-
-        public class TransactionApp {
-
-            public static void main(String[] args) {
-
-                // TODO: Implement the main logic here.
-
-            }
-
-        }
-
-
-
-
 
 
 

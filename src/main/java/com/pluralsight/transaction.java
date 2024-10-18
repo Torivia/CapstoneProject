@@ -3,7 +3,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-//Here, I will parse the transaction file.
 public class transaction {
     private LocalDate date;
     private LocalTime time;
