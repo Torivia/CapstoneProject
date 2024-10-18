@@ -29,14 +29,14 @@ public class CapstoneProject {
                     "Please choose an option:\n" +
                     "D) Add Deposit (Sell)\n" +//ask for deposit information, how much they want to deposit, invoice/description, name, and save to csv file
                     "P) Make Payment (Buy)\n" +//prompt for debit info and save to csv file
-                    "L) Ledger (Display Ledger Screen\n" +
+                    "L) Ledger (Display Ledger Screen)\n" +
                     "X) Exit - exit the application");
             //make uppercase:
             option = scanner.nextLine().toUpperCase();
             //switch statement:
             switch (option) {
                 case "D":
-                    deposit.makeDeposit();
+                    deposit();
                     break;
                 case "P":
                     makePayment();
@@ -52,79 +52,7 @@ public class CapstoneProject {
 
         } while (!option.equals("X")); //keeps looping until x pressed
     }
-
-    public static void displayLedger() {
-
-        System.out.println("Displaying all transactions:");
-        for (transaction t : transactions) {
-            System.out.println(t);
-        }
-    }
-        public static void loadTransactions() {
-            String filename = "transactions.csv";
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
-
-            try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split("\\|");
-                    if (parts.length == 5) {
-                        LocalDate date = LocalDate.parse(parts[0], dateTimeFormatter);
-                        LocalTime time = LocalTime.parse(parts[1], dateTimeFormatter);
-                        String description = parts[2];
-                        String vendor = parts[3];
-                        float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
-
-                        transaction t = new transaction(date, time, description, vendor, amount);
-                        transactions.add(t);
-                    } else {
-                        System.out.println("Invalid line format: " + line);
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println("An error occurred while reading the file O.o;;");
-                e.printStackTrace(); //////////////////////////////////////////////
-            }
-        }
-
-
-        String filename = "src/transaction.csv";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("\\|");
-
-                // Check if the first part contains both date and time
-                if (parts.length != 4) {
-                    System.out.println("Invalid line format: " + line);
-                    continue; // Skip invalid lines
-                }
-            }
-        }
-
-        //Get only payments (negative amounts)
-        public ArrayList<transaction> getPayments() {
-            List<transaction> payments = new ArrayList<>();
-            for (transaction t : transactions) {
-                if (transaction.getAmount() < 0) {
-                    payments.add(t);
-                }
-            }// Get only deposits (positive amounts)
-            public ArrayList<transaction> getDeposits() {
-                ArrayList<transaction> deposits = new ArrayList<>();
-                for (transaction t : transactions()) {
-                    if (transaction.getAmount() > 0) {
-                        deposits.add(t);
-                    }
-                }
-                return deposits;
-            }
-            return payments;
-        }
-
-        public static void deposit() {
+    public static void deposit() {
         String description, vendor;
         float amount;
 
@@ -144,11 +72,13 @@ public class CapstoneProject {
         LocalTime time = LocalTime.now();
 
         // Add the transaction to the list (you need to have a proper transaction class defined)
-        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+        //        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+        transaction t = new transaction(date, time, description, vendor, amount);
         transactions.add(t);
         //saving it to file!!
-        try(FileWriter writer = new FileWriter("transaction.csv", true)) {
-            writer.write(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+        try(FileWriter writer = new FileWriter("src/transactions.csv", true)) {
+            String name = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
+            writer.write(name + "\n");
             System.out.println("Okey Dokey deposit saved! yyayyyyyy");
         }catch (IOException e) {
             System.out.println("an error occurred :c");
@@ -161,14 +91,14 @@ public class CapstoneProject {
         float amount;
 
         //1. asking for how much it costs
-        System.out.println("How much did you sell this item for?");
+        System.out.println("How much did you spend for this item?");
         amount = scanner.nextFloat();
         scanner.nextLine();
         //2. asking for a description
         System.out.println("What is this item?");
         description = scanner.nextLine();
         //3.asking for buyer's name
-        System.out.println("Name of seller?");
+        System.out.println("Name of buyer?");
         vendor = scanner.nextLine();
         // Writing to the CSV file (transactions.csv)
 // add transactiondetails to an array of transactions
@@ -176,17 +106,192 @@ public class CapstoneProject {
         LocalTime time = LocalTime.now();
 
         // Add the transaction to the list (you need to have a proper transaction class defined)
-        transaction t = new transaction(date, time, description, vendor, float amount);
+        //        transaction t = new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount);
+        transaction t = new transaction(date, time, description, vendor, amount);
         transactions.add(t);
         //saving it to file!!
-        transactions.add(new transaction(date + "|" + time + "|" + description + "|" + vendor + "|" + amount));
-
-        System.out.println("okey dokey artichoke :3 payment has been saved");
+        try (FileWriter writer = new FileWriter("src/transactions.csv", true)) {
+            String name = date + "|" + time + "|" + description + "|" + vendor + "|" + amount + "\n";
+            writer.write(name + "\n");
+            System.out.println("okey dokey artichoke :3 payment has been saved");
+        }catch (IOException e) {
+            System.out.println("a problem happened while writing to the file :c");
+            e.printStackTrace();
+        }
     }
-    public static void showReports
+
+    public static void displayLedger() {
+        String option;
+        //homescreen
+        do {
+            System.out.println("You are now in the ledger section!\n" +
+                    "────── ⋆⋅☆⋅⋆ ──────\n" +
+                    "Please choose an option:\n" +
+                    "A) All\n" +//ask for deposit information, how much they want to deposit, invoice/description, name, and save to csv file
+                    "D) Deposits\n" +//prompt for debit info and save to csv file
+                    "P) Payments\n" +
+                    "R) Reports\n" +
+                    "H) Home");
+            //make uppercase:
+            option = scanner.nextLine().toUpperCase();
+            //switch statement:
+            switch (option) {
+                case "A":
+                    loadTransactions();
+                    break;
+                case "D":
+                    showDeposits();
+                case "P":
+                    showPayments();
+                    break;
+                case "R":
+                    showReports();
+                case "H":
+                    System.out.println("Bye bye :)!");
+                    break;
+                default:
+                    System.out.println("This option is not available. Please choose again.");
+            }
+
+        } while (!option.equals("H"));
+    }
+    public static void showDeposits() {
+        System.out.println("Displaying all transactions:");
+        for (transaction t : transactions) {
+            System.out.println(t);
+        }
+    }
+    public static void showPayments() {
+        System.out.println("Displaying all transactions:");
+        for (transaction t : transactions) {
+            System.out.println(t);
+        }
+    }
+
+
+        public static void loadTransactions() {
+            String filename = "src/transactions.csv";
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+                String line = reader.readLine();
+                int transactionNumber = 0;
+                if (line != null && line.toLowerCase().startsWith("date|")) {
+                    line = reader.readLine();
+                }
+                while (line != null) {
+                    String[] parts = line.split("\\|");
+                    if (parts.length == 5) {
+                        LocalDate date = LocalDate.parse(parts[0], dateFormatter);
+                        LocalTime time = LocalTime.parse(parts[1], timeFormatter);
+//                        LocalDate date = parts[0];
+//                        LocalTime time = parts[1];
+                        String description = parts[2];
+                        String vendor = parts[3];
+                        float amount = Float.parseFloat(parts[4]);/////////////////////////////////////
+                        transactionNumber++;
+                        System.out.println("Transaction" + transactionNumber + ":\n" +
+                                "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ\n" +
+                                "Date: " + date + "\n" +
+                                "Time: " + time + "\n" +
+                                "Description: " + description + "\n" +
+                                "2nd party: " + vendor + "\n" +
+                                "Price: " + amount + "\n" +
+                                "｡ﾟ•┈꒰ა ♡ ໒꒱┈•  ｡ﾟ");
+                    } else {
+                        System.out.println("Invalid line format: " + line);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("An error occurred while reading the file O.o;;");
+                e.printStackTrace(); //////////////////////////////////////////////
+            }
+        }
+
+    public static void loadAll() {
+
+        String filename = "src/transaction.csv";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+
+                // Check if the first part contains both date and time
+                if (parts.length != 5) {
+                    System.out.println("Invalid line format: " + line);
+                    continue; // Skip invalid lines
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+        //Get only payments (negative amounts)
+        public ArrayList<transaction> getPayments() {
+            List<transaction> payments = new ArrayList<>();
+            for (transaction t : transactions) {
+                if (t.getAmount() < 0) {
+                    payments.add(t);
+                }
+                return payments;
+            }// Get only deposits (positive amounts)
+            public ArrayList<transaction> getDeposits() {
+                ArrayList<transaction> deposits = new ArrayList<>();
+                for (transaction t : transactions()) {
+                    if (t.getAmount() > 0) {
+                        deposits.add(t);
+                    }
+                }
+                return deposits;
+            }
+
+        }
+
+
+
+    public static void showReports() {
+        String option;
+        //reports section
+        do {
+            System.out.println("Welcome to the Repports section!\n" +
+                    "────── ⋆⋅☆⋅⋆ ──────\n" +
+                    "Please choose an option:\n" +
+                    "1) Month To Date\n" +//ask for deposit information, how much they want to deposit, invoice/description, name, and save to csv file
+                    "2) Previous Month\n" +//prompt for debit info and save to csv file
+                    "3) Year to Date\n" +
+                    "4) Previous Year" +
+                    "5) Search By Vendor" +
+                    "0) Exit");
+            //make uppercase:
+            option = scanner.nextLine().toUpperCase();
+            //switch statement:
+            switch (option) {
+                case "D":
+                    deposit();
+                    break;
+                case "P":
+                    makePayment();
+                    break;
+                case "L":
+                    displayLedger();
+                case "X":
+                    System.out.println("Bye bye :)!");
+                    break;
+                default:
+                    System.out.println("This option is not available. Please choose again.");
+            }
+
+        } while (!option.equals("X")); //keeps looping until x pressed
 
     }
 }
+
+
+
 
 
 

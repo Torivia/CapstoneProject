@@ -40,8 +40,8 @@ public class transaction {
         this.time = time;
     }
 
-    public transaction(String s) {
-    }
+//    public transaction(date, time, description, vendor, amount) {
+//    }
 
     //getting and setting variables
     public String getDescription() {
@@ -73,4 +73,4 @@ public class transaction {
         return date + " | " + time + " | " + description + " | " + vendor + " | " + amount;
     }
     }
-}
+
